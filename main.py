@@ -219,22 +219,7 @@ def kNearestNeighbour(df):
     falseNegative = confusionMatrix[1][0]
     falsePositive = confusionMatrix[0][1]
 
-    print("KNeighbours Algorithm confusion matrix")
-    print(confusionMatrix)
-    print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
-    print()
 
-    print(classification_report(y_test, KNeighborsModel.predict(X_test)))
-    print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
-
-    knc = KNeighborsClassifier(n_neighbors=7)
-    knc.fit(X_train, y_train)
-    title = "Knn : Confusion Matrix"
-    disp = plot_confusion_matrix(knc, X_test, y_test, cmap=plt.cm.Blues, normalize=None)
-    disp.ax_.set_title(title)
-
-    print(title)
-    print(disp.confusion_matrix)
 
     plt.show()
 
@@ -328,6 +313,29 @@ def dt_test_train_split(df):
     print("Shape of y: ", y.shape)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
     return X_train, X_test, y_train, y_test
+
+def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
+    print("Decision tree with depth ", +maxDepth)
+    model = DecisionTreeClassifier(random_state=0, max_depth=maxDepth)
+    model.fit(x_train, y_train)
+    # Feature names, i.e., Attributes
+    # ['raceethnicity', 'gender', 'cause']
+    fn = ['h_income', 'county_income', 'p_income', 'pop', 'pov', 'raceethnicity', 'armed']
+    # Class names
+    cn = ['Gunshot', 'Death in custody', 'Taser', 'Struck by vehicle']
+    tree.plot_tree(model, feature_names=fn, class_names=cn, filled=True)
+    # Visualisation using the matplotlib library
+    plt.savefig('decision' + str(maxDepth) + '.png')
+    # plt.show()
+    training_accuracy = model.score(x_train, y_train)
+    print("The training accuracy is found out to be: ", +training_accuracy)
+    # Predict the testing data and storing it in y_pred
+    y_pred = model.predict(x_test)
+    testing_accuracy = accuracy_score(y_test, y_pred)
+    print("The testing accuracy is found out to be: ", +testing_accuracy)
+
+
+
 
 
 def main():
