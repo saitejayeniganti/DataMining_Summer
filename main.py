@@ -3,12 +3,20 @@ import matplotlib.pyplot as plt
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn import tree
+from sklearn import decomposition  
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
+import numpy as np
+import random 
+import matplotlib.colors as mcolors
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, classification_report, plot_confusion_matrix
+from sklearn.preprocessing import StandardScaler
+import scipy.cluster.hierarchy as sch
 from sklearn.cluster import KMeans
-from sklearn import decomposition
-
-
-
 def loadData(filename):
     return pd.read_csv(filename, encoding='ISO-8859-1')
 
@@ -120,6 +128,7 @@ def police_Shooting_Distribution(df):
     plt.show()
     print('\n')
 
+
     
 
 def missingValues(df):
@@ -174,6 +183,7 @@ def missingValues(df):
     median_CompIncome = df['comp_income'].median()
     df.fillna({'comp_income': median_CompIncome}, inplace=True)
 
+
     df["pov"] = df["pov"].replace("-", '0')
     df[["pov"]] = df[["pov"]].apply(pd.to_numeric)
     medianPov = df['pov'].median()
@@ -181,6 +191,143 @@ def missingValues(df):
     print('poverty rate : Replaced with Median')
 
     return df
+
+
+def kNearestNeighbour(df):
+    temp = df[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
+    print(temp)
+    temp = temp.apply(LabelEncoder().fit_transform)
+    train = temp.iloc[:, :5]
+    test = temp.iloc[:, 5]
+
+    null_columns = train.columns[train.isnull().any()]
+    print(train[null_columns].isnull().sum())
+    print("Are any value null", train.isnull().values.any())
+    print("y shape = ", train.shape)
+    print(train)
+
+    X_train, X_test, y_train, y_test = train_test_split(train, test, test_size=0.20, random_state=55, shuffle=True)
+
+    KNeighborsModel = KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='brute')
+
+    KNeighborsModel.fit(X_train, y_train)
+
+    confusionMatrix = confusion_matrix(y_test, KNeighborsModel.predict(X_test))
+
+    truePositive = confusionMatrix[0][0]
+    trueNegative = confusionMatrix[1][1]
+    falseNegative = confusionMatrix[1][0]
+    falsePositive = confusionMatrix[0][1]
+
+    print("KNeighbours Algorithm confusion matrix")
+    print(confusionMatrix)
+    print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
+    print()
+
+    print(classification_report(y_test, KNeighborsModel.predict(X_test)))
+    print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
+
+    knc = KNeighborsClassifier(n_neighbors=7)
+    knc.fit(X_train, y_train)
+    title = "Knn : Confusion Matrix"
+    disp = plot_confusion_matrix(knc, X_test, y_test, cmap=plt.cm.Blues, normalize=None)
+    disp.ax_.set_title(title)
+
+    print(title)
+    print(disp.confusion_matrix)
+
+    plt.show()
+
+
+def df_correlation(df):
+    print('\033[1m ************************ Correlation Between Attributes ************************ \033[0m')
+    print('\n')
+    
+    incidents_per_city = df["city"].value_counts()
+    avg_Pincome_perCity = df[['city', 'p_income']]
+    avg_Pincome_perCity = avg_Pincome_perCity.groupby(
+        [avg_Pincome_perCity["city"]]).mean()
+    corr_city_avg_Pincome = pd.concat(
+        [incidents_per_city, avg_Pincome_perCity], axis=1)
+    print(corr_city_avg_Pincome)
+    correlation = corr_city_avg_Pincome['city'].corr(
+        corr_city_avg_Pincome['p_income'])
+    print('\n')
+    print(
+        'Correlation: Number_of_incidents_in_a_city vs Average_personal_income_in_city is : ' + str(
+            correlation))
+    print('\n')
+
+    avg_Hincome_perCity = df[['city', 'h_income']]
+    avg_Hincome_perCity = avg_Hincome_perCity.groupby(
+        [avg_Hincome_perCity["city"]]).mean()
+    corr_city_avg_hincome = pd.concat(
+        [incidents_per_city, avg_Hincome_perCity], axis=1)
+    print(corr_city_avg_hincome)
+    correlation = corr_city_avg_hincome['city'].corr(
+        corr_city_avg_hincome['h_income'])
+    print(
+        'Correlation: Number_of_incidents_in_a_city vs Average_HouseHold_income_in_city is : ' + str(
+            correlation))
+    print('\n')
+
+    avg_urate = df[['city', 'urate']]
+    avg_urate = avg_urate.groupby(
+        [avg_urate["city"]]).mean()
+    corr_avg_urate_incidents = pd.concat(
+        [incidents_per_city, avg_urate], axis=1)
+    print(corr_avg_urate_incidents)
+    correlation = corr_avg_urate_incidents['city'].corr(
+        corr_avg_urate_incidents['urate'])
+    print(
+        'Correlation: Number_of_incidents_in_a_city vs Average_Unemployment_rate is : ' + str(
+            correlation))
+    print('\n')            
+
+    avg_lrate = df[['city', 'college']]
+    avg_lrate = avg_lrate.groupby(
+        [avg_lrate["city"]]).mean()
+    corr_avg_lrate_incidents = pd.concat(
+        [incidents_per_city, avg_lrate], axis=1)
+    print(corr_avg_lrate_incidents)
+    correlation = corr_avg_lrate_incidents['city'].corr(
+        corr_avg_lrate_incidents['college'])
+    print(
+        'Correlation: Number_of_incidents_in_a_city vs Average_literacy_rate is : ' + str(
+            correlation))
+    print('\n')
+     
+    avg_prate = df[['city', 'pov']]
+    avg_prate = avg_prate.groupby(
+        [avg_prate["city"]]).mean()
+    corr_avg_prate_perCity = pd.concat(
+        [incidents_per_city, avg_prate], axis=1)
+    print(corr_avg_prate_perCity)
+    correlation = corr_avg_prate_perCity['city'].corr(
+        corr_avg_prate_perCity['pov'])
+    print(
+        'Correlation: Number_of_incidents_in_a_city vs Average_poverty_rate in the city is : ' + str(
+            correlation))
+    print('\n')
+   
+def removeColumns(df):
+    print('\033[1m ************************ Removing columns ************************ \033[0m')
+    print('Removed : name, county_id, county_fp, latitude, longitude, nat_bucket, tract_ce, streetaddress, day, geo_id, county_bucket, state_fp')
+    print('\n')
+    df.drop(
+        ['name', 'county_id', 'county_fp', 'latitude', 'longitude', 'nat_bucket', 'tract_ce', 'streetaddress', 'day', 'geo_id', 'county_bucket',
+          'state_fp'],
+        axis=1, inplace=True)
+
+def dt_test_train_split(df):
+    # Apply label encoding
+    df = df.apply(LabelEncoder().fit_transform)
+    x = df.iloc[:, :7]
+    y = df.iloc[:, 7]
+    print("Shape of x: ", x.shape)
+    print("Shape of y: ", y.shape)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+    return X_train, X_test, y_train, y_test
 
 
 def main():
@@ -194,10 +341,17 @@ def main():
     df_distribution(data)
     AttributeValueDistribution(data)
     police_Shooting_Distribution(data)
-   
-   
+    df_correlation(data)
+    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+
+    newdf = data.select_dtypes(include=numerics)
+
+    kmeansClustering(data)
+    hierarchialclustering(data)
+    decisionTree(data)
+    kNearestNeighbour(data)
+
 
 if __name__ == "__main__":
     main()
-
 
