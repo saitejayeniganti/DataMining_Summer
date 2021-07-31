@@ -17,31 +17,110 @@ from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, classif
 from sklearn.preprocessing import StandardScaler
 import scipy.cluster.hierarchy as sch
 from sklearn.cluster import KMeans
+
 def loadData(filename):
     return pd.read_csv(filename, encoding='ISO-8859-1')
+
+def removeColumns(df):
+    print('\033[1m ************************ Removing columns ************************ \033[0m')
+    print('\n')
+    print('Removed : name, county_id, county_fp, latitude, longitude, nat_bucket, tract_ce, streetaddress, day, geo_id, county_bucket, state_fp')
+    print('\n')
+    df.drop(
+        ['name', 'county_id', 'county_fp', 'latitude', 'longitude', 'nat_bucket', 'tract_ce', 'streetaddress', 'day', 'geo_id', 'county_bucket',
+          'state_fp'],
+        axis=1, inplace=True)  
+
+def missingValues(df):
+    print('\033[1m ************************ Missing Values ************************ \033[0m')
+    print('\n')
+    age = pd.to_numeric(df.age, errors='coerce')
+    index = age.isna()
+    df["age"] = df["age"].replace("Unknown", '0')
+    df[["age"]] = df[["age"]].apply(pd.to_numeric)
+    medianAge = df['age'].median()
+    print('Age has a skewed distribution : Replaced with Median')
+    print('\n')
+    df["age"] = df["age"].replace(0, round(medianAge))
+    
+    print('Armed, Cause , Race Ethnicity : Unknown values are removed')
+    print('\n')
+    df = df[df.raceethnicity != 'Unknown']
+    df = df[df.armed != 'Unknown']
+    df = df[df.cause != 'Unknown']
+
+    urate = pd.to_numeric(df.urate, errors='coerce')
+    index = urate.isna()
+    df[["urate"]] = df[["urate"]].apply(pd.to_numeric)
+    median_urate = df['urate'].median()
+    df.fillna({'urate': median_urate}, inplace=True)
+    print('Unemployment Rate : Replaced with Median')
+    print('\n')
+
+    college = pd.to_numeric(df.college, errors='coerce')
+    index = college.isna()
+    df[["college"]] = df[["college"]].apply(pd.to_numeric)
+  
+    medianCollege = df['college'].median()
+    df.fillna({'college': medianCollege}, inplace=True)
+
+    share_white = pd.to_numeric(df.share_white, errors='coerce')
+    index = share_white.isna()
+    df["share_white"] = df["share_white"].replace("-", '0')
+    df["share_black"] = df["share_black"].replace("-", '0')
+    df["share_hispanic"] = df["share_hispanic"].replace("-", '0')
+
+    df["p_income"] = df["p_income"].replace("-", '0')
+    df[["p_income"]] = df[["p_income"]].apply(pd.to_numeric)
+    median_PersonalIncome = df['p_income'].median()
+    df["p_income"] = df["p_income"].replace(0, round(median_PersonalIncome))
+
+    median_HouseIncome = df['h_income'].median()
+    df.fillna({'h_income': median_HouseIncome}, inplace=True)
+    print('Household income : Replaced with Median')
+    print('\n')
+
+    median_CompIncome = df['comp_income'].median()
+    df.fillna({'comp_income': median_CompIncome}, inplace=True)
+
+
+    df["pov"] = df["pov"].replace("-", '0')
+    df[["pov"]] = df[["pov"]].apply(pd.to_numeric)
+    medianPov = df['pov'].median()
+    df["pov"] = df["pov"].replace(0, round(medianPov))
+    print('poverty rate : Replaced with Median')
+
+    return df
+
 
 def df_distribution(df):
     print('\n')
     print('\033[1m ************************ Data Distribution ************************ \033[0m')
     print('\n')
-    print('Type of Arms')
+    print('\033[1m  Type of Arms used by the deceases \033[0m')
     print(df["armed"].value_counts())
     print('\n')
-    print('Type of Deaths')
+    print('\033[1m  Type of Deaths \033[0m')
     print(df["cause"].value_counts())
     print('\n')
-    print('Sex of the Deceased')
+    print('\033[1m  Sex of the Deceased \033[0m')
     print(df["gender"].value_counts())
     print('\n')
-    print('Race of the Deceased')
+    print('\033[1m  Race of the Deceased \033[0m')
     print(df["raceethnicity"].value_counts())
+    print('\n')
+    # print('\033[1m  Deceased distribution per state \033[0m')
+    # print(df["state"].value_counts())
+    # print('\n')
+    print('\033[1m  Deceased distribution by Cause \033[0m')
+    print(df["cause"].value_counts())
     print('\n')
 
 def AttributeValueDistribution(df):
     print('\033[1m ************************ Attribute Value Distribution ************************ \033[0m')
     print('\n')
     age = pd.to_numeric(df.age, errors='coerce')
-    plt.plot(df["age"].value_counts(),color='red')
+    plt.plot(df["age"].value_counts(),color='blue')
     plt.xlabel('Age')
     plt.ylabel('Frequency')
     plt.title('Age value Distribution')
@@ -50,15 +129,36 @@ def AttributeValueDistribution(df):
 
     urate = pd.to_numeric(df.urate, errors='coerce')
     df[["urate"]] = df[["urate"]].apply(pd.to_numeric)
-    plt.plot(df["urate"].value_counts(),color='red')
+    plt.plot(df["urate"].value_counts(),color='blue')
     plt.title('Unemployment rate value Distribution')
     plt.show()
     print('\n')
 
     college = pd.to_numeric(df.college, errors='coerce')
     df[["college"]] = df[["college"]].apply(pd.to_numeric)
-    plt.plot(df["college"].value_counts(),color='red')
+    plt.plot(df["college"].value_counts(),color='blue')
     plt.title('Literacy rate value Distribution')
+    plt.show()
+    print('\n')
+
+    pov = pd.to_numeric(df.pov, errors='coerce')
+    df[["pov"]] = df[["pov"]].apply(pd.to_numeric)
+    plt.plot(df["pov"].value_counts(),color='blue')
+    plt.title('poverty rate value Distribution')
+    plt.show()
+    print('\n')
+
+    hIncome = pd.to_numeric(df.pov, errors='coerce')
+    df[["h_income"]] = df[["h_income"]].apply(pd.to_numeric)
+    plt.plot(df["h_income"].value_counts(),color='blue')
+    plt.title('House hold income value Distribution')
+    plt.show()
+    print('\n')
+
+    pIncome = pd.to_numeric(df.pov, errors='coerce')
+    df[["p_income"]] = df[["p_income"]].apply(pd.to_numeric)
+    plt.plot(df["p_income"].value_counts(),color='blue')
+    plt.title('Personal income value Distribution')
     plt.show()
     print('\n')
 
@@ -129,70 +229,6 @@ def police_Shooting_Distribution(df):
     print('\n')
 
 
-    
-
-def missingValues(df):
-    print('\033[1m ************************ Missing Values ************************ \033[0m')
-    print('\n')
-    age = pd.to_numeric(df.age, errors='coerce')
-    index = age.isna()
-    df["age"] = df["age"].replace("Unknown", '0')
-    df[["age"]] = df[["age"]].apply(pd.to_numeric)
-    medianAge = df['age'].median()
-    print('Age has a skewed distribution : Replaced with Median')
-    print('\n')
-    df["age"] = df["age"].replace(0, round(medianAge))
-    
-    print('Armed, Cause , Race Ethnicity : Unknown values are removed')
-    print('\n')
-    df = df[df.raceethnicity != 'Unknown']
-    df = df[df.armed != 'Unknown']
-    df = df[df.cause != 'Unknown']
-
-    urate = pd.to_numeric(df.urate, errors='coerce')
-    index = urate.isna()
-    df[["urate"]] = df[["urate"]].apply(pd.to_numeric)
-    median_urate = df['urate'].median()
-    df.fillna({'urate': median_urate}, inplace=True)
-    print('Unemployment Rate : Replaced with Median')
-    print('\n')
-
-    college = pd.to_numeric(df.college, errors='coerce')
-    index = college.isna()
-    df[["college"]] = df[["college"]].apply(pd.to_numeric)
-  
-    medianCollege = df['college'].median()
-    df.fillna({'college': medianCollege}, inplace=True)
-
-    share_white = pd.to_numeric(df.share_white, errors='coerce')
-    index = share_white.isna()
-    df["share_white"] = df["share_white"].replace("-", '0')
-    df["share_black"] = df["share_black"].replace("-", '0')
-    df["share_hispanic"] = df["share_hispanic"].replace("-", '0')
-
-    df["p_income"] = df["p_income"].replace("-", '0')
-    df[["p_income"]] = df[["p_income"]].apply(pd.to_numeric)
-    median_PersonalIncome = df['p_income'].median()
-    df["p_income"] = df["p_income"].replace(0, round(median_PersonalIncome))
-
-    median_HouseIncome = df['h_income'].median()
-    df.fillna({'h_income': median_HouseIncome}, inplace=True)
-    print('Household income : Replaced with Median')
-    print('\n')
-
-    median_CompIncome = df['comp_income'].median()
-    df.fillna({'comp_income': median_CompIncome}, inplace=True)
-
-
-    df["pov"] = df["pov"].replace("-", '0')
-    df[["pov"]] = df[["pov"]].apply(pd.to_numeric)
-    medianPov = df['pov'].median()
-    df["pov"] = df["pov"].replace(0, round(medianPov))
-    print('poverty rate : Replaced with Median')
-
-    return df
-
-
 def kNearestNeighbour(df):
     temp = df[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
     print(temp)
@@ -219,7 +255,22 @@ def kNearestNeighbour(df):
     falseNegative = confusionMatrix[1][0]
     falsePositive = confusionMatrix[0][1]
 
+    print("KNeighbours Algorithm confusion matrix")
+    print(confusionMatrix)
+    print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
+    print()
 
+    print(classification_report(y_test, KNeighborsModel.predict(X_test)))
+    print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
+
+    knc = KNeighborsClassifier(n_neighbors=7)
+    knc.fit(X_train, y_train)
+    title = "Knn : Confusion Matrix"
+    disp = plot_confusion_matrix(knc, X_test, y_test, cmap=plt.cm.Blues, normalize=None)
+    disp.ax_.set_title(title)
+
+    print(title)
+    print(disp.confusion_matrix)
 
     plt.show()
 
@@ -295,45 +346,6 @@ def df_correlation(df):
             correlation))
     print('\n')
    
-def removeColumns(df):
-    print('\033[1m ************************ Removing columns ************************ \033[0m')
-    print('Removed : name, county_id, county_fp, latitude, longitude, nat_bucket, tract_ce, streetaddress, day, geo_id, county_bucket, state_fp')
-    print('\n')
-    df.drop(
-        ['name', 'county_id', 'county_fp', 'latitude', 'longitude', 'nat_bucket', 'tract_ce', 'streetaddress', 'day', 'geo_id', 'county_bucket',
-          'state_fp'],
-        axis=1, inplace=True)
-
-def dt_test_train_split(df):
-    # Apply label encoding
-    df = df.apply(LabelEncoder().fit_transform)
-    x = df.iloc[:, :7]
-    y = df.iloc[:, 7]
-    print("Shape of x: ", x.shape)
-    print("Shape of y: ", y.shape)
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
-    return X_train, X_test, y_train, y_test
-
-def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
-    print("Decision tree with depth ", +maxDepth)
-    model = DecisionTreeClassifier(random_state=0, max_depth=maxDepth)
-    model.fit(x_train, y_train)
-    # Feature names, i.e., Attributes
-    # ['raceethnicity', 'gender', 'cause']
-    fn = ['h_income', 'county_income', 'p_income', 'pop', 'pov', 'raceethnicity', 'armed']
-    # Class names
-    cn = ['Gunshot', 'Death in custody', 'Taser', 'Struck by vehicle']
-    tree.plot_tree(model, feature_names=fn, class_names=cn, filled=True)
-    # Visualisation using the matplotlib library
-    plt.savefig('decision' + str(maxDepth) + '.png')
-    # plt.show()
-    training_accuracy = model.score(x_train, y_train)
-    print("The training accuracy is found out to be: ", +training_accuracy)
-    # Predict the testing data and storing it in y_pred
-    y_pred = model.predict(x_test)
-    testing_accuracy = accuracy_score(y_test, y_pred)
-    print("The testing accuracy is found out to be: ", +testing_accuracy)
-
 
 
 
@@ -362,4 +374,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
