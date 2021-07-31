@@ -1,21 +1,4 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-from sklearn import tree
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.cluster import KMeans
-from sklearn import decomposition  # PCA
-import numpy as np
-from sklearn.model_selection import train_test_split
-import pandas as pd
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, classification_report, plot_confusion_matrix
-from sklearn.preprocessing import StandardScaler
-import scipy.cluster.hierarchy as sch
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import LabelEncoder
+test
 
 
 def loadData(filename):
@@ -408,7 +391,7 @@ def kmeansClustering(data):
                  cmap=plt.cm.Set1)
     axes.set_title('K_Means', fontsize=18)
     plt.xlabel('Household Income')
-    plt.ylabel('Cause ( 0.0 - Gunshot, 1.0 Ð Death in custody, 2.0 Ð Taser, 3.0 Ð Struck by vehicle )')
+    plt.ylabel('Cause ( 0.0 - Gunshot, 1.0 ï¿½ Death in custody, 2.0 ï¿½ Taser, 3.0 ï¿½ Struck by vehicle )')
     plt.show()
 
 def hierarchialclustering(data):
@@ -430,7 +413,7 @@ def hierarchialclustering(data):
     plt.scatter(data['armed'], data['cause'], c=hc.labels_)
     plt.title('Hierarchical Agglomerative clustering')
     plt.xlabel(' Armed ( 0 - No, 1 - Firearm, 2 - Non-lethal firearm, 3 - Other, 4 - Knife, 5 - Vehicle, 6 - Disputed)')
-    plt.ylabel(' Cause ( 0.0 - Gunshot, 1.0 Ð Death in custody, 2.0 Ð Taser, 3.0 Ð Struck by vehicle )')
+    plt.ylabel(' Cause ( 0.0 - Gunshot, 1.0 ï¿½ Death in custody, 2.0 ï¿½ Taser, 3.0 ï¿½ Struck by vehicle )')
     plt.show()
 
 def main():
