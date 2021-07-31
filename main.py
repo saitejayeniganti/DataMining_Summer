@@ -54,6 +54,73 @@ def AttributeValueDistribution(df):
     plt.show()
     print('\n')
 
+def police_Shooting_Distribution(df):
+    print('\033[1m ************************ Killings Distribution ************************ \033[0m')
+    print('\n')
+    armsData = df["armed"].value_counts()
+    armsLables = 'Firearm', 'No', 'Knife', 'Other', 'Vehicle', 'Non-lethal firearm', 'Disputed'
+    colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 7)
+    plt.pie(armsData, labels=armsLables, autopct='%1.1f%%',colors=colors)
+    plt.axis('equal')
+    plt.title('Arms Distribution')
+    print('\n')
+    plt.show()
+    print('\n')
+    gender_values = df["gender"].value_counts()
+    print('\n')
+    if (gender_values.Male > gender_values.Female):
+        print('Most of the deceased belongs to Male group')
+    else:
+        print('Most of the deceased belongs to Female group')
+    gender_labels = 'Male', 'Female'
+    plt.pie(gender_values, labels=gender_labels, autopct='%1.1f%%')
+    plt.title('Breakdown by Gender')
+    plt.axis('equal')
+    plt.show()
+
+    print('\n')
+    ages = df["age"].value_counts(bins=10)
+    ages_labels = '(30.2, 37.3]', '(23.1, 30.2] ', '(37.3, 44.4]', '(15.928, 23.1]', '(44.4, 51.5]', '(51.5, 58.6]', '(58.6, 65.7]', '(65.7, 72.8] ', '(72.8, 79.9]', '(79.9, 87.0] '
+    plt.bar(x=ages_labels,
+            height=ages)
+    plt.hist(ages_labels, rwidth=10)
+    plt.xticks(rotation=30)
+    plt.title('Breakdown by Ages')
+    plt.show()
+    print('\n')
+
+    race_values = df["raceethnicity"].value_counts()
+    race_labels = 'White', 'Black', 'Hispanic/Latino', 'Asian/Pacific Islander', 'Native American'
+    plt.pie(race_values, labels=race_labels, autopct='%1.1f%%')
+    plt.title('Breakdown by Race')
+    plt.axis('equal')
+    plt.show()
+    print('\n')
+
+    month_values = df["month"].value_counts()
+    month_labels = 'March', 'April', 'February', 'January', 'May', 'June'
+    plt.bar(x=month_labels,
+            height=month_values)
+    plt.title('Breakdown by Month')
+    plt.show()
+    print('\n')
+
+    state_values = df["state"].value_counts().head(5)
+    state_labels = 'CA', 'TX', 'FL', 'AZ', 'OK'
+    plt.bar(x=state_labels, height=state_values)
+    plt.title('Breakdown by State')
+    plt.show()
+    print('\n')
+
+    city_values = df["city"].value_counts().head(5)
+    city_labels = 'Los Angeles', 'Houston', 'Phoenix', 'New York', 'Oklahoma City'
+    plt.bar(x=city_labels, height=city_values)
+    plt.xticks(rotation=45)
+    plt.title('Breakdown by City')
+    plt.show()
+    print('\n')
+
+    
 
 def missingValues(df):
     print('\033[1m ************************ Missing Values ************************ \033[0m')
@@ -116,7 +183,6 @@ def missingValues(df):
     return df
 
 
-
 def main():
     pd.set_option('display.width', 800)
     pd.set_option('display.max_columns', None)
@@ -127,7 +193,9 @@ def main():
     data = missingValues(data)
     df_distribution(data)
     AttributeValueDistribution(data)
-  
+    police_Shooting_Distribution(data)
+   
+   
 
 if __name__ == "__main__":
     main()
