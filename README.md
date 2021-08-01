@@ -3,13 +3,13 @@ An analysis of police shootings data.
 
 Team:
 Sai teja - 015265978
-Lakshmi Gundlapalli - Lakshmi141105
+Lakshmi Gundlapalli - 015241122
 
 **How to Run .py file**
 1) Using pycharm
 2) Using Google colab
 
-**Google Colab**
+**in Google Colab**
 -> Open Google colab. 
 -> Copy the code in .py to the code block
 -> In files, upload the police_killings.csv to the sample_data folder.
@@ -18,7 +18,7 @@ Lakshmi Gundlapalli - Lakshmi141105
 -> The output of the code can be seen in a block below the code block.
 -> Images of visualizations appear in the sample_data folder.
 
-**Pycharm**
+**in Pycharm**
 -> open Pycharm
 -> import .py
 -> import police_killings.csv
