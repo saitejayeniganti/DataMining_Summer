@@ -417,25 +417,41 @@ def KmeansClustering_P_income(df):
     plt.show()
     print('\n')
 
-def hierarchialclustering(data):
-    data = data[['armed', 'cause']]
-    data = data.apply(LabelEncoder().fit_transform)
-    # Using dendrogram to find out the number of clusters instead of elbow method.
-    dendrogram = sch.dendrogram(sch.linkage(data, method="ward"))
+def hierarchialclustering(df):
+    print('\033[1m ************************ Hierarchial clustering of cause and armed ************************ \033[0m')
+    df = df[['armed', 'cause']]
+    df = df.apply(LabelEncoder().fit_transform)
+    # dendrogram to find number of clusters.
+    dendrogram = sch.dendrogram(sch.linkage(df, method="ward"))
     plt.title('Dendrogram')
     plt.xlabel('Police Killings')
     plt.ylabel('Euclidean distances')
     plt.show()
-
-    # Calculate the number of clusters based on significant branches in the dendogram
-    # by setting a threshold on euclidean distance.
     hc = AgglomerativeClustering(n_clusters=4, affinity='euclidean', linkage='ward')
-    y_hc = hc.fit_predict(data)
-    print(data)
+    y_hc = hc.fit_predict(df)
     plt.figure(figsize=(10, 7))
-    plt.scatter(data['armed'], data['cause'], c=hc.labels_)
+    plt.scatter(df['armed'], df['cause'], c=hc.labels_)
     plt.title('Hierarchical Agglomerative clustering')
     plt.xlabel(' Armed ( 0 - No, 1 - Firearm, 2 - Non-lethal firearm, 3 - Other, 4 - Knife, 5 - Vehicle, 6 - Disputed)')
+    plt.ylabel(' Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
+    plt.show()
+
+def hierarchialclustering_Hincome(data):
+     print('\033[1m ************************ Hierarchial clustering of House hold income and cause ************************ \033[0m')
+    data = data[['h_income', 'cause']]
+    data = data.apply(LabelEncoder().fit_transform)
+    # dendrogram to find number of clusters.
+    dendrogram = sch.dendrogram(sch.linkage(data, method="ward"))
+    plt.title('Dendrogram')
+    plt.xlabel('House Hold Income')
+    plt.ylabel('Euclidean distances')
+    plt.show()
+    hc = AgglomerativeClustering(n_clusters=4, affinity='euclidean', linkage='ward')
+    y_hc = hc.fit_predict(data)
+    plt.figure(figsize=(10, 7))
+    plt.scatter(data['h_income'], data['cause'], c=hc.labels_)
+    plt.title('Hierarchical Agglomerative clustering')
+    plt.xlabel(' Household income Income')
     plt.ylabel(' Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
     plt.show()
 
@@ -454,13 +470,9 @@ def kNearestNeighbour(df):
     print(train)
 
     X_train, X_test, y_train, y_test = train_test_split(train, test, test_size=0.20, random_state=55, shuffle=True)
-
     KNeighborsModel = KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='brute')
-
     KNeighborsModel.fit(X_train, y_train)
-
     confusionMatrix = confusion_matrix(y_test, KNeighborsModel.predict(X_test))
-
     truePositive = confusionMatrix[0][0]
     trueNegative = confusionMatrix[1][1]
     falseNegative = confusionMatrix[1][0]
@@ -503,6 +515,7 @@ def main():
     decisionTree(df)
     KmeansClustering_H_income(df)
     KmeansClustering_P_income(df)
+    hierarchialclustering_Hincome(data)
     hierarchialclustering(df)
     kNearestNeighbour(df)
 
