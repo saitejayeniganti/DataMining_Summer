@@ -345,6 +345,7 @@ def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
     model.fit(x_train, y_train)
     fn = ['h_income', 'county_income', 'p_income', 'pop', 'pov', 'raceethnicity', 'armed']
     cn = ['Gunshot', 'Death in custody', 'Taser', 'Struck by vehicle']
+    fig = plt.figure(figsize=(25,20))
     tree.plot_tree(model, feature_names=fn, class_names=cn, filled=True)
     plt.savefig('Decision_Tree_Depth-' + str(maxDepth) + '.png')
     train_accuracy = model.score(x_train, y_train)
