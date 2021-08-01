@@ -170,7 +170,7 @@ def police_Shooting_Distribution(df):
     armsLables = 'Firearm', 'No', 'Knife', 'Other', 'Vehicle', 'Non-lethal firearm', 'Disputed'
     colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 7)
     plt.pie(armsData,explode=explode,shadow=True,labels=armsLables, autopct='%1.1f%%',colors=colors)
-    print(' \033[1m  Most of the deceased Fire arm with them. \033[1m ')
+    print(' \033[1m  Most of the deceased have Fire arm with them. \033[1m ')
 
     plt.axis('equal')
     plt.title('Arms Distribution')
@@ -222,9 +222,9 @@ def police_Shooting_Distribution(df):
     # print('\n')
 
     state_values = df["state"].value_counts().head(5)
-    colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 5)
+    
     state_labels = 'CA', 'TX', 'FL', 'AZ', 'OK'
-    plt.bar(x=state_labels, height=state_values,colors=colors)
+    plt.bar(x=state_labels, height=state_values,color=['black', 'red', 'green', 'blue', 'cyan'])
     plt.title('Breakdown by State')
     plt.show()
     print(' \033[1m  Most of the deceased belong to CA. \033[1m ')
@@ -295,13 +295,13 @@ def df_correlation(df):
         [avg_Pincome_perCity["city"]]).mean()
     corr_city_avg_Pincome = pd.concat(
         [incidents_per_city, avg_Pincome_perCity], axis=1)
-    print(corr_city_avg_Pincome)
+    #print(corr_city_avg_Pincome)
     correlation = corr_city_avg_Pincome['city'].corr(
         corr_city_avg_Pincome['p_income'])
     print('\n')
     print(
-        'Correlation: Number_of_incidents_in_a_city vs Average_personal_income_in_city is : ' + str(
-            correlation))
+        'Number_of_incidents_in_a_city       Average_personal_income_in_city is : ' + str(
+            round(correlation,2)))
     print('\n')
 
     avg_Hincome_perCity = df[['city', 'h_income']]
@@ -309,12 +309,12 @@ def df_correlation(df):
         [avg_Hincome_perCity["city"]]).mean()
     corr_city_avg_hincome = pd.concat(
         [incidents_per_city, avg_Hincome_perCity], axis=1)
-    print(corr_city_avg_hincome)
+    #print(corr_city_avg_hincome)
     correlation = corr_city_avg_hincome['city'].corr(
         corr_city_avg_hincome['h_income'])
     print(
-        'Correlation: Number_of_incidents_in_a_city vs Average_HouseHold_income_in_city is : ' + str(
-            correlation))
+        'Number_of_incidents_in_a_city       Average_HouseHold_income_in_city is : ' + str(
+            round(correlation,2)))
     print('\n')
 
     avg_urate = df[['city', 'urate']]
@@ -322,12 +322,12 @@ def df_correlation(df):
         [avg_urate["city"]]).mean()
     corr_avg_urate_incidents = pd.concat(
         [incidents_per_city, avg_urate], axis=1)
-    print(corr_avg_urate_incidents)
+    #print(corr_avg_urate_incidents)
     correlation = corr_avg_urate_incidents['city'].corr(
         corr_avg_urate_incidents['urate'])
     print(
-        'Correlation: Number_of_incidents_in_a_city vs Average_Unemployment_rate is : ' + str(
-            correlation))
+        'Number_of_incidents_in_a_city       Average_Unemployment_rate is : ' + str(
+            round(correlation,2)))
     print('\n')            
 
     avg_lrate = df[['city', 'college']]
@@ -335,12 +335,12 @@ def df_correlation(df):
         [avg_lrate["city"]]).mean()
     corr_avg_lrate_incidents = pd.concat(
         [incidents_per_city, avg_lrate], axis=1)
-    print(corr_avg_lrate_incidents)
+    #print(corr_avg_lrate_incidents)
     correlation = corr_avg_lrate_incidents['city'].corr(
         corr_avg_lrate_incidents['college'])
     print(
-        'Correlation: Number_of_incidents_in_a_city vs Average_literacy_rate is : ' + str(
-            correlation))
+        'Number_of_incidents_in_a_city       Average_literacy_rate is : ' + str(
+            round(correlation,2)))
     print('\n')
      
     avg_prate = df[['city', 'pov']]
@@ -348,14 +348,14 @@ def df_correlation(df):
         [avg_prate["city"]]).mean()
     corr_avg_prate_perCity = pd.concat(
         [incidents_per_city, avg_prate], axis=1)
-    print(corr_avg_prate_perCity)
+    #print(corr_avg_prate_perCity)
     correlation = corr_avg_prate_perCity['city'].corr(
         corr_avg_prate_perCity['pov'])
     print(
-        'Correlation: Number_of_incidents_in_a_city vs Average_poverty_rate in the city is : ' + str(
-            correlation))
+        'Number_of_incidents_in_a_city       Average_poverty_rate in the city is : ' + str(
+            round(correlation,2)))
     print('\n')
-   
+
 
 
 
@@ -373,7 +373,8 @@ def main():
     df_correlation(data)
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
 
-   
+  
+
 
 if __name__ == "__main__":
     main()
