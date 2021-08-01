@@ -354,7 +354,8 @@ def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
     print("Test Accuracy: ", +test_accuracy)
     print('\n')
 
-def kmeansClustering(df):
+def KmeansClustering_H_income(df):
+    print('\033[1m ************************ KMeans with Household income and Cause ************************ \033[0m')
     df = df[['h_income', 'cause']]
     df = df.apply(LabelEncoder().fit_transform)
     dist = []
@@ -363,7 +364,7 @@ def kmeansClustering(df):
         kmeanModel = KMeans(n_clusters=k)
         kmeanModel.fit(df)
         dist.append(kmeanModel.inertia_)
-    plt.figure(figsize=(8, 4))
+    plt.figure(figsize=(9, 4))
     plt.plot(K, dist, 'bx-')
     plt.xlabel('k')
     plt.ylabel('Distortion')
@@ -373,7 +374,6 @@ def kmeansClustering(df):
     # Using k value as 3 while performing K-means clustering.
     kmeanModel = KMeans(n_clusters=3)
     kmeanModel.fit(df)
-
     print(df)
     df['k_means'] = kmeanModel.predict(df)
     print(df)
@@ -384,7 +384,38 @@ def kmeansClustering(df):
     plt.xlabel('Household Income')
     plt.ylabel('Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
     plt.show()
+    print('\n')
 
+
+def KmeansClustering_P_income(df):
+    print('\033[1m ************************ KMeans with Personal income and Cause ************************ \033[0m')
+    df = df[['P_income', 'cause']]
+    df = df.apply(LabelEncoder().fit_transform)
+    dist = []
+    K = range(1, 10)
+    for k in K:
+        kmeanModel = KMeans(n_clusters=k)
+        kmeanModel.fit(df)
+        dist.append(kmeanModel.inertia_)
+    plt.figure(figsize=(9, 4))
+    plt.plot(K, dist, 'bx-')
+    plt.xlabel('k')
+    plt.ylabel('Distortion')
+    plt.title('Elbow Method')
+    plt.show()
+    kmeanModel = KMeans(n_clusters=3)
+    kmeanModel.fit(df)
+    print(df)
+    df['k_means'] = kmeanModel.predict(df)
+    print(df)
+    fig, axes = plt.subplots(1, figsize=(12, 6))
+    axes.scatter(df['P_income'], df['cause'], c=df['k_means'],
+                 cmap=plt.cm.Set1)
+    axes.set_title('K_Means', fontsize=18)
+    plt.xlabel('Personal Income')
+    plt.ylabel('Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
+    plt.show()
+    print('\n')
 
 def hierarchialclustering(data):
     data = data[['armed', 'cause']]
@@ -470,7 +501,8 @@ def main():
     tempDf = df.select_dtypes(include=numerics)
 
     decisionTree(df)
-    kmeansClustering(df)
+    KmeansClustering_H_income(df)
+    KmeansClustering_P_income(df)
     hierarchialclustering(df)
     kNearestNeighbour(df)
 
