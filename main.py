@@ -348,6 +348,15 @@ def df_correlation(df):
    
 
 
+def dt_test_train_split(df):
+    # Apply label encoding
+    df = df.apply(LabelEncoder().fit_transform)
+    x = df.iloc[:, :7]
+    y = df.iloc[:, 7]
+    print("Shape of x: ", x.shape)
+    print("Shape of y: ", y.shape)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+    return X_train, X_test, y_train, y_test
 
 
 def main():
@@ -362,14 +371,7 @@ def main():
     AttributeValueDistribution(data)
     police_Shooting_Distribution(data)
     df_correlation(data)
-    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-
-    newdf = data.select_dtypes(include=numerics)
-
-    kmeansClustering(data)
-    hierarchialclustering(data)
-    decisionTree(data)
-    kNearestNeighbour(data)
+    
 
 
 if __name__ == "__main__":
