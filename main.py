@@ -238,53 +238,6 @@ def police_Shooting_Distribution(df):
     # plt.show()
     # print('\n')
 
-
-def kNearestNeighbour(df):
-    temp = df[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
-    print(temp)
-    temp = temp.apply(LabelEncoder().fit_transform)
-    train = temp.iloc[:, :5]
-    test = temp.iloc[:, 5]
-
-    null_columns = train.columns[train.isnull().any()]
-    print(train[null_columns].isnull().sum())
-    print("Are any value null", train.isnull().values.any())
-    print("y shape = ", train.shape)
-    print(train)
-
-    X_train, X_test, y_train, y_test = train_test_split(train, test, test_size=0.20, random_state=55, shuffle=True)
-
-    KNeighborsModel = KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='brute')
-
-    KNeighborsModel.fit(X_train, y_train)
-
-    confusionMatrix = confusion_matrix(y_test, KNeighborsModel.predict(X_test))
-
-    truePositive = confusionMatrix[0][0]
-    trueNegative = confusionMatrix[1][1]
-    falseNegative = confusionMatrix[1][0]
-    falsePositive = confusionMatrix[0][1]
-
-    print("KNeighbours Algorithm confusion matrix")
-    print(confusionMatrix)
-    print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
-    print()
-
-    print(classification_report(y_test, KNeighborsModel.predict(X_test)))
-    print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
-
-    knc = KNeighborsClassifier(n_neighbors=7)
-    knc.fit(X_train, y_train)
-    title = "Knn : Confusion Matrix"
-    disp = plot_confusion_matrix(knc, X_test, y_test, cmap=plt.cm.Blues, normalize=None)
-    disp.ax_.set_title(title)
-
-    print(title)
-    print(disp.confusion_matrix)
-
-    plt.show()
-
-
 def df_correlation(df):
     print('\033[1m ************************ Correlation Between Attributes ************************ \033[0m')
     print('\n')
@@ -356,24 +309,170 @@ def df_correlation(df):
             round(correlation,2)))
     print('\n')
 
+def decisionTree(data):
+    print('\033[1m ************************ Decision Tree ************************ \033[0m')
+    numeric_data = data.select_dtypes(include=np.number)
+    X = numeric_data  
+    y = data.iloc[:, 2] 
+    # print(X.isnull().sum())
+    selectBest = SelectKBest(score_func=chi2, k=5)
+    fit = selectBest.fit(X, y)
+    scores = pd.DataFrame(fit.scores_)
+    columnss = pd.DataFrame(X.columns)
+    f_scores = pd.concat([columnss, scores], axis=1)
+    f_scores.columns = ['Factors', 'Score']
+    dt_numeric_data = numeric_data[['h_income', 'county_income', 'p_income', 'pop', 'pov']]
+    dt_data = data[['raceethnicity', 'armed', 'cause']]
+    dt_data = pd.concat([dt_numeric_data, dt_data], axis=1)
+    #print(dt_data)
+    #print(dt_data['cause'].unique())
+    x_train, x_test, y_train, y_test = dt_test_train_split(dt_data)
+    dt_classification(x_train, x_test, y_train, y_test, 2)
+    dt_classification(x_train, x_test, y_train, y_test, 3)
+    dt_classification(x_train, x_test, y_train, y_test, 4)
+    dt_classification(x_train, x_test, y_train, y_test, 5)
 
+def dt_test_train_split(df):
+    df = df.apply(LabelEncoder().fit_transform)
+    x = df.iloc[:, :7]
+    y = df.iloc[:, 7]
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+    return X_train, X_test, y_train, y_test
+
+def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
+    print("\033[1m Decision tree with depth \033[0m ", +maxDepth)
+    model = DecisionTreeClassifier(random_state=0, max_depth=maxDepth)
+    model.fit(x_train, y_train)
+    fn = ['h_income', 'county_income', 'p_income', 'pop', 'pov', 'raceethnicity', 'armed']
+    cn = ['Gunshot', 'Death in custody', 'Taser', 'Struck by vehicle']
+    tree.plot_tree(model, feature_names=fn, class_names=cn, filled=True)
+    plt.savefig('Decision_Tree_Depth-' + str(maxDepth) + '.png')
+    train_accuracy = model.score(x_train, y_train)
+    print("Training Accuracy: ", +train_accuracy)
+    y_pred = model.predict(x_test)
+    test_accuracy = accuracy_score(y_test, y_pred)
+    print("Test Accuracy: ", +test_accuracy)
+    print('\n')
+
+def kmeansClustering(df):
+    df = df[['h_income', 'cause']]
+    df = df.apply(LabelEncoder().fit_transform)
+    dist = []
+    K = range(1, 10)
+    for k in K:
+        kmeanModel = KMeans(n_clusters=k)
+        kmeanModel.fit(df)
+        dist.append(kmeanModel.inertia_)
+    plt.figure(figsize=(8, 4))
+    plt.plot(K, dist, 'bx-')
+    plt.xlabel('k')
+    plt.ylabel('Distortion')
+    plt.title('Elbow Method')
+    plt.show()
+    # The optimal k value is found out to be 3 based on elbow method.
+    # Using k value as 3 while performing K-means clustering.
+    kmeanModel = KMeans(n_clusters=3)
+    kmeanModel.fit(df)
+
+    print(df)
+    df['k_means'] = kmeanModel.predict(df)
+    print(df)
+    fig, axes = plt.subplots(1, figsize=(12, 6))
+    axes.scatter(df['h_income'], df['cause'], c=df['k_means'],
+                 cmap=plt.cm.Set1)
+    axes.set_title('K_Means', fontsize=18)
+    plt.xlabel('Household Income')
+    plt.ylabel('Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
+    plt.show()
+
+
+def hierarchialclustering(data):
+    data = data[['armed', 'cause']]
+    data = data.apply(LabelEncoder().fit_transform)
+    # Using dendrogram to find out the number of clusters instead of elbow method.
+    dendrogram = sch.dendrogram(sch.linkage(data, method="ward"))
+    plt.title('Dendrogram')
+    plt.xlabel('Police Killings')
+    plt.ylabel('Euclidean distances')
+    plt.show()
+
+    # Calculate the number of clusters based on significant branches in the dendogram
+    # by setting a threshold on euclidean distance.
+    hc = AgglomerativeClustering(n_clusters=4, affinity='euclidean', linkage='ward')
+    y_hc = hc.fit_predict(data)
+    print(data)
+    plt.figure(figsize=(10, 7))
+    plt.scatter(data['armed'], data['cause'], c=hc.labels_)
+    plt.title('Hierarchical Agglomerative clustering')
+    plt.xlabel(' Armed ( 0 - No, 1 - Firearm, 2 - Non-lethal firearm, 3 - Other, 4 - Knife, 5 - Vehicle, 6 - Disputed)')
+    plt.ylabel(' Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
+    plt.show()
+
+
+def kNearestNeighbour(df):
+    temp = df[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
+    print(temp)
+    temp = temp.apply(LabelEncoder().fit_transform)
+    train = temp.iloc[:, :5]
+    test = temp.iloc[:, 5]
+
+    null_columns = train.columns[train.isnull().any()]
+    print(train[null_columns].isnull().sum())
+    print("Are any value null", train.isnull().values.any())
+    print("y shape = ", train.shape)
+    print(train)
+
+    X_train, X_test, y_train, y_test = train_test_split(train, test, test_size=0.20, random_state=55, shuffle=True)
+
+    KNeighborsModel = KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='brute')
+
+    KNeighborsModel.fit(X_train, y_train)
+
+    confusionMatrix = confusion_matrix(y_test, KNeighborsModel.predict(X_test))
+
+    truePositive = confusionMatrix[0][0]
+    trueNegative = confusionMatrix[1][1]
+    falseNegative = confusionMatrix[1][0]
+    falsePositive = confusionMatrix[0][1]
+
+    print("KNeighbours Algorithm confusion matrix")
+    print(confusionMatrix)
+    print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
+    print()
+
+    print(classification_report(y_test, KNeighborsModel.predict(X_test)))
+    print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
+
+    knc = KNeighborsClassifier(n_neighbors=7)
+    knc.fit(X_train, y_train)
+    title = "Knn : Confusion Matrix"
+    disp = plot_confusion_matrix(knc, X_test, y_test, cmap=plt.cm.Blues, normalize=None)
+    disp.ax_.set_title(title)
+
+    print(title)
+    print(disp.confusion_matrix)
+
+    plt.show()
 
 
 def main():
     pd.set_option('display.width', 800)
     pd.set_option('display.max_columns', None)
-    data = loadData('./sample_data/police_killings.csv')
+    df = loaddf('./sample_df/police_killings.csv')
 
-    removeColumns(data)
-    #print(data.isnull().sum())
-    data = missingValues(data)
-    df_distribution(data)
-    AttributeValueDistribution(data)
-    police_Shooting_Distribution(data)
-    df_correlation(data)
+    removeColumns(df)
+    df = missingValues(df)
+    df_distribution(df)
+    AttributeValueDistribution(df)
+    police_Shooting_Distribution(df)
+    df_correlation(df)
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+    tempDf = df.select_dtypes(include=numerics)
 
-  
+    decisionTree(df)
+    kmeansClustering(df)
+    hierarchialclustering(df)
+    kNearestNeighbour(df)
 
 
 if __name__ == "__main__":
