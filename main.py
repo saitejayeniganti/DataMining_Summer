@@ -355,7 +355,7 @@ def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
     print('\n')
 
 def KmeansClustering_H_income(df):
-    print('\033[1m ************************ KMeans with Household income and Cause ************************ \033[0m')
+   
     df = df[['h_income', 'cause']]
     df = df.apply(LabelEncoder().fit_transform)
     dist = []
@@ -369,6 +369,7 @@ def KmeansClustering_H_income(df):
     plt.xlabel('k')
     plt.ylabel('Distortion')
     plt.title('Elbow Method')
+    print('\033[1m ************************ KMeans with Household income and Cause ************************ \033[0m')
     plt.show()
     # The optimal k value is found out to be 3 based on elbow method.
     # Using k value as 3 while performing K-means clustering.
@@ -405,7 +406,9 @@ def KmeansClustering_P_income(df):
     plt.show()
     kmeanModel = KMeans(n_clusters=3)
     kmeanModel.fit(df)
+    print(df)
     df['k_means'] = kmeanModel.predict(df)
+    print(df)
     fig, axes = plt.subplots(1, figsize=(12, 6))
     axes.scatter(df['p_income'], df['cause'], c=df['k_means'],
                  cmap=plt.cm.Set1)
@@ -456,13 +459,15 @@ def hierarchialclustering_Hincome(data):
 
 
 def kNearestNeighbour(df):
+    print('\033[1m ************************ Knn************************ \033[0m')
     temp = df[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
-    print(temp)
+    #print(temp)
     temp = temp.apply(LabelEncoder().fit_transform)
     train = temp.iloc[:, :5]
     test = temp.iloc[:, 5]
     null_columns = train.columns[train.isnull().any()]
     X_train, X_test, y_train, y_test = train_test_split(train, test, test_size=0.20, random_state=55, shuffle=True)
+    print('\n k=3 \n')
     KNeighborsModel = KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='brute')
     KNeighborsModel.fit(X_train, y_train)
     confusionMatrix = confusion_matrix(y_test, KNeighborsModel.predict(X_test))
@@ -473,12 +478,13 @@ def kNearestNeighbour(df):
 
     #print("Knn Confusion Matrix")
     #print(confusionMatrix)
-    #print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
+    print("Testing Accuracy = ", (truePositive + trueNegative) / (truePositive + trueNegative + falseNegative + falsePositive))
 
     print(classification_report(y_test, KNeighborsModel.predict(X_test)))
     print('\n')
     print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
     print('\n')
+    print('\n k=7 \n')
     knc = KNeighborsClassifier(n_neighbors=7)
     knc.fit(X_train, y_train)
     title = "Knn : Confusion Matrix"
