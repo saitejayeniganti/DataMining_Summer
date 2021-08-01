@@ -97,7 +97,7 @@ def df_distribution(df):
     print('\n')
     print('\033[1m ************************ Data Distribution ************************ \033[0m')
     print('\n')
-    print('\033[1m  Type of Arms used by the deceased \033[0m')
+    print('\033[1m  Type of Arms used by the deceases \033[0m')
     print(df["armed"].value_counts())
     print('\n')
     print('\033[1m  Type of Deaths \033[0m')
@@ -166,9 +166,12 @@ def police_Shooting_Distribution(df):
     print('\033[1m ************************ Killings Distribution ************************ \033[0m')
     print('\n')
     armsData = df["armed"].value_counts()
+    explode = (0.1, 0, 0, 0,0,0,0) 
     armsLables = 'Firearm', 'No', 'Knife', 'Other', 'Vehicle', 'Non-lethal firearm', 'Disputed'
     colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 7)
-    plt.pie(armsData, labels=armsLables, autopct='%1.1f%%',colors=colors)
+    plt.pie(armsData,explode=explode,shadow=True,labels=armsLables, autopct='%1.1f%%',colors=colors)
+    print(' \033[1m  Most of the deceased Fire arm with them. \033[1m ')
+
     plt.axis('equal')
     plt.title('Arms Distribution')
     plt.show()
@@ -176,7 +179,9 @@ def police_Shooting_Distribution(df):
 
     gender_values = df["gender"].value_counts()
     gender_labels = 'Male', 'Female'
-    plt.pie(gender_values, labels=gender_labels, autopct='%1.1f%%')
+    explode = (0.1, 0) 
+    colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 2)
+    plt.pie(gender_values, explode=explode,shadow=True, labels=gender_labels, autopct='%1.1f%%',colors=colors)
     plt.title('Breakdown by Gender')
     plt.axis('equal')
     plt.show()
@@ -198,11 +203,14 @@ def police_Shooting_Distribution(df):
     # print('\n')
 
     race_values = df["raceethnicity"].value_counts()
+    explode = (0.1, 0, 0, 0, 0) 
+    colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 5)
     race_labels = 'White', 'Black', 'Hispanic/Latino', 'Asian/Pacific Islander', 'Native American'
-    plt.pie(race_values, labels=race_labels, autopct='%1.1f%%')
+    plt.pie(race_values, explode=explode, shadow=True, labels=race_labels, autopct='%1.1f%%',colors=colors)
     plt.title('Breakdown by Race')
     plt.axis('equal')
     plt.show()
+    print(' \033[1m  Most of the deceased are white. \033[1m ')
     print('\n')
 
     # month_values = df["month"].value_counts()
@@ -214,10 +222,12 @@ def police_Shooting_Distribution(df):
     # print('\n')
 
     state_values = df["state"].value_counts().head(5)
+    colors = random.choices(list(mcolors.CSS4_COLORS.values()),k = 5)
     state_labels = 'CA', 'TX', 'FL', 'AZ', 'OK'
-    plt.bar(x=state_labels, height=state_values)
+    plt.bar(x=state_labels, height=state_values,colors=colors)
     plt.title('Breakdown by State')
     plt.show()
+    print(' \033[1m  Most of the deceased belong to CA. \033[1m ')
     print('\n')
 
     # city_values = df["city"].value_counts().head(5)
@@ -227,7 +237,6 @@ def police_Shooting_Distribution(df):
     # plt.title('Breakdown by City')
     # plt.show()
     # print('\n')
-
 
 
 def kNearestNeighbour(df):
@@ -349,16 +358,6 @@ def df_correlation(df):
    
 
 
-def dt_test_train_split(df):
-    # Apply label encoding
-    df = df.apply(LabelEncoder().fit_transform)
-    x = df.iloc[:, :7]
-    y = df.iloc[:, 7]
-    print("Shape of x: ", x.shape)
-    print("Shape of y: ", y.shape)
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
-    return X_train, X_test, y_train, y_test
-
 
 def main():
     pd.set_option('display.width', 800)
@@ -372,8 +371,9 @@ def main():
     AttributeValueDistribution(data)
     police_Shooting_Distribution(data)
     df_correlation(data)
-    
+    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
 
+   
 
 if __name__ == "__main__":
     main()
