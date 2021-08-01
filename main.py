@@ -109,9 +109,9 @@ def df_distribution(df):
     print('\033[1m  Race of the Deceased \033[0m')
     print(df["raceethnicity"].value_counts())
     print('\n')
-    print('\033[1m  Deceased distribution per state \033[0m')
-    print(df["state"].value_counts())
-    print('\n')
+    # print('\033[1m  Deceased distribution per state \033[0m')
+    # print(df["state"].value_counts())
+    # print('\n')
     print('\033[1m  Deceased distribution by Cause \033[0m')
     print(df["cause"].value_counts())
     print('\n')
@@ -171,31 +171,31 @@ def police_Shooting_Distribution(df):
     plt.pie(armsData, labels=armsLables, autopct='%1.1f%%',colors=colors)
     plt.axis('equal')
     plt.title('Arms Distribution')
-    print('\n')
     plt.show()
     print('\n')
+
     gender_values = df["gender"].value_counts()
-    print('\n')
-    if (gender_values.Male > gender_values.Female):
-        print('Most of the deceased belongs to Male group')
-    else:
-        print('Most of the deceased belongs to Female group')
     gender_labels = 'Male', 'Female'
     plt.pie(gender_values, labels=gender_labels, autopct='%1.1f%%')
     plt.title('Breakdown by Gender')
     plt.axis('equal')
     plt.show()
+    if (gender_values.Male > gender_values.Female):
+        print(' \033[1m  Most of the deceased belongs to Male group \033[1m ')
+    else:
+        print(' \033[1m  Most of the deceased belongs to Female group \033[1m ')
 
     print('\n')
-    ages = df["age"].value_counts(bins=10)
-    ages_labels = '(30.2, 37.3]', '(23.1, 30.2] ', '(37.3, 44.4]', '(15.928, 23.1]', '(44.4, 51.5]', '(51.5, 58.6]', '(58.6, 65.7]', '(65.7, 72.8] ', '(72.8, 79.9]', '(79.9, 87.0] '
-    plt.bar(x=ages_labels,
-            height=ages)
-    plt.hist(ages_labels, rwidth=10)
-    plt.xticks(rotation=30)
-    plt.title('Breakdown by Ages')
-    plt.show()
-    print('\n')
+    
+    # ages = df["age"].value_counts(bins=10)
+    # ages_labels = '(30.2, 37.3]', '(23.1, 30.2] ', '(37.3, 44.4]', '(15.928, 23.1]', '(44.4, 51.5]', '(51.5, 58.6]', '(58.6, 65.7]', '(65.7, 72.8] ', '(72.8, 79.9]', '(79.9, 87.0] '
+    # plt.bar(x=ages_labels,
+    #         height=ages)
+    # plt.hist(ages_labels, rwidth=10)
+    # plt.xticks(rotation=30)
+    # plt.title('Breakdown by Ages')
+    # plt.show()
+    # print('\n')
 
     race_values = df["raceethnicity"].value_counts()
     race_labels = 'White', 'Black', 'Hispanic/Latino', 'Asian/Pacific Islander', 'Native American'
@@ -205,13 +205,13 @@ def police_Shooting_Distribution(df):
     plt.show()
     print('\n')
 
-    month_values = df["month"].value_counts()
-    month_labels = 'March', 'April', 'February', 'January', 'May', 'June'
-    plt.bar(x=month_labels,
-            height=month_values)
-    plt.title('Breakdown by Month')
-    plt.show()
-    print('\n')
+    # month_values = df["month"].value_counts()
+    # month_labels = 'March', 'April', 'February', 'January', 'May', 'June'
+    # plt.bar(x=month_labels,
+    #         height=month_values)
+    # plt.title('Breakdown by Month')
+    # plt.show()
+    # print('\n')
 
     state_values = df["state"].value_counts().head(5)
     state_labels = 'CA', 'TX', 'FL', 'AZ', 'OK'
@@ -220,13 +220,14 @@ def police_Shooting_Distribution(df):
     plt.show()
     print('\n')
 
-    city_values = df["city"].value_counts().head(5)
-    city_labels = 'Los Angeles', 'Houston', 'Phoenix', 'New York', 'Oklahoma City'
-    plt.bar(x=city_labels, height=city_values)
-    plt.xticks(rotation=45)
-    plt.title('Breakdown by City')
-    plt.show()
-    print('\n')
+    # city_values = df["city"].value_counts().head(5)
+    # city_labels = 'Los Angeles', 'Houston', 'Phoenix', 'New York', 'Oklahoma City'
+    # plt.bar(x=city_labels, height=city_values)
+    # plt.xticks(rotation=45)
+    # plt.title('Breakdown by City')
+    # plt.show()
+    # print('\n')
+
 
 
 def kNearestNeighbour(df):
