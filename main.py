@@ -463,9 +463,58 @@ def hierarchialclustering_Hincome(data):
     plt.ylabel(' Cause ( 0.0 - Gunshot, 1.0 – Death in custody, 2.0 – Taser, 3.0 – Struck by vehicle )')
     plt.show()
 
-
-def kNearestNeighbour(df):
+def kNearestNeighbour(data):
     print('\033[1m ************************ Knn************************ \033[0m')
+    temp_data = data[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
+
+    print(temp_data)
+
+    temp_data = temp_data.apply(LabelEncoder().fit_transform)
+    train = temp_data.iloc[:, :5]
+    test = temp_data.iloc[:, 5]
+
+    null_columns = train.columns[train.isnull().any()]
+    print(train[null_columns].isnull().sum())
+    print("Are any value null", train.isnull().values.any())
+    print("y shape = ", train.shape)
+    print(train)
+
+    X_train, X_test, y_train, y_test = train_test_split(train, test, test_size=0.20, random_state=55, shuffle=True)
+
+    KNeighborsModel = KNeighborsClassifier(n_neighbors=5, weights='uniform', algorithm='brute')
+
+    KNeighborsModel.fit(X_train, y_train)
+
+    print("KNeighbors Classifier model run successfully")
+
+    conmax = confusion_matrix(y_test, KNeighborsModel.predict(X_test))
+
+    TP = conmax[0][0]
+    TN = conmax[1][1]
+    FN = conmax[1][0]
+    FP = conmax[0][1]
+
+    print("KNeighbours Algorithm confusion matrix")
+    print(conmax)
+    print("Testing Accuracy = ", (TP + TN) / (TP + TN + FN + FP))
+    print()
+
+    print(classification_report(y_test, KNeighborsModel.predict(X_test)))
+    print("Accuracy Score is:", accuracy_score(y_test, KNeighborsModel.predict(X_test)))
+
+    knc = KNeighborsClassifier(n_neighbors=7)
+    knc.fit(X_train, y_train)
+    title = "KNeighbours : Confusion Matrix"
+    disp = plot_confusion_matrix(knc, X_test, y_test, cmap=plt.cm.Blues, normalize=None)
+    disp.ax_.set_title(title)
+
+    print(title)
+    print(disp.confusion_matrix)
+
+    plt.show()
+
+def Knn(df):
+    
     temp = df[['age', 'p_income', 'h_income', 'pov', 'comp_income', 'cause']]
     #print(temp)
     temp = temp.apply(LabelEncoder().fit_transform)
@@ -503,17 +552,17 @@ def kNearestNeighbour(df):
     plt.show()
     print('\n')
 
-def pca(df, olddf):
+def implementpca(data, olddata):
     print('\n')
-    null_columns = df.columns[df.isnull().any()]
-    print(df[null_columns].isnull().sum())
-    print("Are any value null", df.isnull().values.any())
+    null_columns = data.columns[data.isnull().any()]
+    print(data[null_columns].isnull().sum())
+    print("Are any value null", data.isnull().values.any())
 
     labelencoder = LabelEncoder()
 
-    X = df
-    Y = olddf["cause"]
-    Y = labelencoder.fit_transform(olddf['cause'])
+    X = data
+    Y = olddata["cause"]
+    Y = labelencoder.fit_transform(olddata['cause'])
     scaler = StandardScaler()
     scaler.fit(X)
     X = scaler.transform(X)
@@ -529,7 +578,7 @@ def pca(df, olddf):
     axes[1].set_ylabel('PC2')
     axes[1].set_title('After PCA')
     plt.show()
-    print('Variance_ratio')
+    print('explained_variance_ratio_')
     print(pca.explained_variance_ratio_)
     print('components')
     print(abs(pca.components_))
@@ -555,7 +604,7 @@ def main():
     KmeansClustering_P_income(df)
     hierarchialclustering_Hincome(df)
     hierarchialclustering(df)
-    pca(tempDf, df)
+    implementpca(tempDf, df)
     kNearestNeighbour(df)
 
 
