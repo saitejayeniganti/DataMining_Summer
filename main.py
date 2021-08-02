@@ -331,6 +331,7 @@ def decisionTree(data):
     dt_classification(x_train, x_test, y_train, y_test, 3)
     dt_classification(x_train, x_test, y_train, y_test, 4)
     dt_classification(x_train, x_test, y_train, y_test, 5)
+    dt_classification(x_train, x_test, y_train, y_test, 0)
 
 def dt_test_train_split(df):
     df = df.apply(LabelEncoder().fit_transform)
@@ -341,13 +342,17 @@ def dt_test_train_split(df):
 
 def dt_classification(x_train, x_test, y_train, y_test, maxDepth):
     print("\033[1m Decision tree with depth \033[0m ", +maxDepth)
-    model = DecisionTreeClassifier(random_state=0, max_depth=maxDepth)
+    if maxDepth>0:
+        model = DecisionTreeClassifier(random_state=0, max_depth=maxDepth)
+    else:
+        model = DecisionTreeClassifier(random_state=0)
     model.fit(x_train, y_train)
     fn = ['h_income', 'county_income', 'p_income', 'pop', 'pov', 'raceethnicity', 'armed']
     cn = ['Gunshot', 'Death in custody', 'Taser', 'Struck by vehicle']
     fig = plt.figure(figsize=(25,20))
     tree.plot_tree(model, feature_names=fn, class_names=cn, filled=True)
-    plt.savefig('Decision_Tree_Depth-' + str(maxDepth) + '.png')
+    if maxDepth>0:
+       plt.savefig('Decision_Tree_Depth-' + str(maxDepth) + '.png')
     train_accuracy = model.score(x_train, y_train)
     #print("Training Accuracy: ", +train_accuracy)
     y_pred = model.predict(x_test)
@@ -370,7 +375,7 @@ def KmeansClustering_H_income(df):
     plt.xlabel('k')
     plt.ylabel('Distortion')
     plt.title('Elbow Method')
-    print('\033[1m ************************ KMeans with Household income and Cause ************************ \033[0m')
+    #print('\033[1m ************************ KMeans with Household income and Cause ************************ \033[0m')
     plt.show()
     # The optimal k value is found out to be 3 based on elbow method.
     # Using k value as 3 while performing K-means clustering.
@@ -498,6 +503,38 @@ def kNearestNeighbour(df):
     plt.show()
     print('\n')
 
+def pca(df, olddf):
+    print('\n')
+    null_columns = df.columns[df.isnull().any()]
+    print(df[null_columns].isnull().sum())
+    print("Are any value null", df.isnull().values.any())
+
+    labelencoder = LabelEncoder()
+
+    X = df
+    Y = olddf["cause"]
+    Y = labelencoder.fit_transform(olddf['cause'])
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X = scaler.transform(X)
+    pca = decomposition.PCA(n_components=2)  
+    X_new = pca.fit_transform(X)  
+    fig, axes = plt.subplots(1, 2)
+    axes[0].scatter(X[:, 0], X[:, 1], c=Y)
+    axes[0].set_xlabel('x1')
+    axes[0].set_ylabel('x2')
+    axes[0].set_title('Before PCA')
+    axes[1].scatter(X_new[:, 0], X_new[:, 1], c=Y)
+    axes[1].set_xlabel('PC1')
+    axes[1].set_ylabel('PC2')
+    axes[1].set_title('After PCA')
+    plt.show()
+    print('Variance_ratio')
+    print(pca.explained_variance_ratio_)
+    print('components')
+    print(abs(pca.components_))
+    print('\n')
+
 
 def main():
     pd.set_option('display.width', 800)
@@ -518,6 +555,7 @@ def main():
     KmeansClustering_P_income(df)
     hierarchialclustering_Hincome(df)
     hierarchialclustering(df)
+    pca(tempDf, df)
     kNearestNeighbour(df)
 
 
